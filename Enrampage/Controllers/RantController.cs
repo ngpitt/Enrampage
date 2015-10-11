@@ -31,7 +31,7 @@ namespace Enrampage.Controllers
                     return new ApiResponse(true, "Rant listing successful.", rantResponses);
                 }
             }
-            catch (Exception Ex)
+            catch
             {
                 return new ApiResponse(false, "Failed to list rants.", null);
             }
