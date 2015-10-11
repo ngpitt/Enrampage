@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="EnrampageModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2012" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityContainer Name="EnrampageModelStoreContainer">
+    <EntitySet Name="Rants" EntityType="EnrampageModel.Store.Rants" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Tags" EntityType="EnrampageModel.Store.Tags" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="RantTag" EntityType="EnrampageModel.Store.RantTag" store:Type="Tables" Schema="dbo" />
+    <AssociationSet Name="FK_RantTag_Rants" Association="EnrampageModel.Store.FK_RantTag_Rants">
+      <End Role="Rants" EntitySet="Rants" />
+      <End Role="RantTag" EntitySet="RantTag" />
+    </AssociationSet>
+    <AssociationSet Name="FK_RantTag_Tags" Association="EnrampageModel.Store.FK_RantTag_Tags">
+      <End Role="Tags" EntitySet="Tags" />
+      <End Role="RantTag" EntitySet="RantTag" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Rants">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Created" Type="datetime" Nullable="false" />
+    <Property Name="Text" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Tags">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Text" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="RantTag">
+    <Key>
+      <PropertyRef Name="Rants_Id" />
+      <PropertyRef Name="Tags_Id" />
+    </Key>
+    <Property Name="Rants_Id" Type="int" Nullable="false" />
+    <Property Name="Tags_Id" Type="int" Nullable="false" />
+  </EntityType>
+  <Association Name="FK_RantTag_Rants">
+    <End Role="Rants" Type="EnrampageModel.Store.Rants" Multiplicity="1" />
+    <End Role="RantTag" Type="EnrampageModel.Store.RantTag" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Rants">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="RantTag">
+        <PropertyRef Name="Rants_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_RantTag_Tags">
+    <End Role="RantTag" Type="EnrampageModel.Store.RantTag" Multiplicity="*" />
+    <End Role="Tags" Type="EnrampageModel.Store.Tags" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Tags">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="RantTag">
+        <PropertyRef Name="Tags_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="EnrampageModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Rant">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Created" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Text" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Tags" Relationship="Self.RantTag" FromRole="Rants" ToRole="Tags" />
+        </EntityType>
+        <EntityType Name="Tag">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Text" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Rants" Relationship="Self.RantTag" FromRole="Tags" ToRole="Rants" />
+        </EntityType>
+        <Association Name="RantTag">
+          <End Role="Rants" Type="Self.Rant" Multiplicity="*" />
+          <End Role="Tags" Type="Self.Tag" Multiplicity="*" />
+        </Association>
+        <EntityContainer Name="EnrampageEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Rants" EntityType="Self.Rant" />
+          <EntitySet Name="Tags" EntityType="Self.Tag" />
+          <AssociationSet Name="RantTag" Association="Self.RantTag">
+            <End Role="Rants" EntitySet="Rants" />
+            <End Role="Tags" EntitySet="Tags" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+    <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="EnrampageModelStoreContainer" CdmEntityContainer="EnrampageEntities">
+    <EntitySetMapping Name="Rants">
+      <EntityTypeMapping TypeName="IsTypeOf(EnrampageModel.Rant)">
+        <MappingFragment StoreEntitySet="Rants">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Created" ColumnName="Created" />
+          <ScalarProperty Name="Text" ColumnName="Text" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Tags">
+      <EntityTypeMapping TypeName="IsTypeOf(EnrampageModel.Tag)">
+        <MappingFragment StoreEntitySet="Tags">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Text" ColumnName="Text" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <AssociationSetMapping Name="RantTag" TypeName="EnrampageModel.RantTag" StoreEntitySet="RantTag">
+      <EndProperty Name="Rants">
+        <ScalarProperty Name="Id" ColumnName="Rants_Id" />
+      </EndProperty>
+      <EndProperty Name="Tags">
+        <ScalarProperty Name="Id" ColumnName="Tags_Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+  </EntityContainerMapping>
+</Mapping></edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="False" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

@@ -1,2 +1,2 @@
-# enrampage
+# Enrampage
 Yet Another Blogging Website

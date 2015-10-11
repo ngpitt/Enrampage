@@ -1,0 +1,61 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+.alert {
+    margin-top: 20px;
+    display: none;
+}
+
+#new-rant {
+    margin-top: 20px;
+}
+
+.bootstrap-tagsinput {
+    min-width: 100%;
+    border-top-left-radius: 0px !important;
+    border-bottom-left-radius: 0px !important;
+}
+
+#rant-area {
+    resize: none;
+    text-transform: uppercase;
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+}
+
+#post-rant {
+    min-width: 100%;
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+}
+
+#rants {
+    margin-top: 10px;
+}
+
+h3 {
+    display: inline;
+    margin-right: 5px;
+}
+
+.tag {
+    margin: 0px 5px;
+}
+
+#loading {
+    margin: 25px 0px;
+    text-align: center;
+    display: none;
+}
+
+#placeholder {
+    margin: 25px 0px;
+    text-align: center;
+    display: none;
+}
+
+#templates {
+    display: none;
+}
