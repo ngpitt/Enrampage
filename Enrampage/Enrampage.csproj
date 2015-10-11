@@ -200,13 +200,6 @@
     <Content Include="Scripts\bootstrap-tagsinput-angular.min.js" />
     <Content Include="Scripts\bootstrap-tagsinput.js" />
     <Content Include="Scripts\bootstrap-tagsinput.min.js" />
-    <EntityDeploy Include="Models\EnrampageModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>EnrampageModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\EnrampageModel.edmx.diagram">
-      <DependentUpon>EnrampageModel.edmx</DependentUpon>
-    </Content>
     <Content Include="Scripts\bootstrap-tagsinput.min.js.map" />
     <Content Include="Scripts\bootstrap-tagsinput-angular.min.js.map" />
     <Content Include="Content\bootstrap-tagsinput.less" />
@@ -225,6 +218,15 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\bootstrap3-typeahead.js" />
     <Content Include="Scripts\bootstrap3-typeahead.min.js" />
+    <EntityDeploy Include="Models\EnrampageModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>EnrampageModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="Models\EnrampageModel.edmx.diagram">
+      <DependentUpon>EnrampageModel.edmx</DependentUpon>
+    </Content>
+    <Content Include="ConnectionStrings.Release.config" />
+    <Content Include="ConnectionStrings.Debug.config" />
     <None Include="Properties\PublishProfiles\Xphysics.pubxml" />
     <None Include="Scripts\jquery-2.1.4.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.4.js" />

@@ -2,8 +2,8 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 10/11/2015 11:55:14
--- Generated from EDMX file: c:\users\ngpitt\documents\visual studio 2015\Projects\Enrampage\Enrampage\Models\EnrampageModel.edmx
+-- Date Created: 10/11/2015 15:41:29
+-- Generated from EDMX file: C:\Users\ngpitt\Documents\GitHub\Enrampage\Enrampage\Models\EnrampageModel.edmx
 -- --------------------------------------------------
 
 SET QUOTED_IDENTIFIER OFF;

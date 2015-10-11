@@ -55,12 +55,20 @@
                 {
                     var rant = RantFromJson(Payload);
 
-                    $('#placeholder').slideUp('slow');
                     $('#rant-area').val(null);
                     SetControlsDisabled(false);
-                    rant.hide();
-                    $('#rants').prepend(rant);
-                    rant.slideDown('slow');
+
+                    if ($('#rants .rant').length === 0)
+                    {
+                        $('#placeholder').hide();
+                        $('#rants').prepend(rant).slideDown('slow');
+                    }
+                    else
+                    {
+                        rant.hide();
+                        $('#rants').prepend(rant)
+                        rant.slideDown('slow');
+                    }
                 });
         });
 
@@ -76,42 +84,38 @@
 
         function LoadRants()
         {
-            $('#placeholder').show().slideUp('slow');
+            $('#placeholder').hide();
             $('#loading').show();
             PostJson('@Url.HttpRouteUrl("DefaultApi", new { action = "GetRants" })',
                 { Number: Page, Tags: $('#tags').tagsinput('items') },
                 function (Payload)
                 {
                     $('#loading').hide();
+                    AllRantsShown = Payload.length != 10;
 
-                    if (Payload.length === 0)
+                    if (Payload.length === 0 && $('#rants .rant').length === 0)
                     {
-                        $('#placeholder').slideDown('slow');
+                        $('#placeholder').show();
                     }
                     else
                     {
                         $.each(Payload, function ()
                         {
-                            var rant = RantFromJson(this);
-
-                            rant.hide();
-                            $('#rants').append(rant);
-                            rant.slideDown("slow");
+                            $('#rants').append(RantFromJson(this));
                         });
+                        $('#rants').slideDown('slow');
                     }
-
-                    AllRantsShown = Payload.length != 10;
                 });
         }
 
         function TagsChanged()
         {
-            $('#rants .rant').slideUp('slow', function ()
+            $('#rants').slideUp('slow', function ()
             {
-                $(this).remove();
+                $('#rants .rant').remove();
+                Page = 0;
+                LoadRants();
             });
-            Page = 0;
-            LoadRants();
         }
 
         function PostJson(Url, Data, Success)
@@ -187,15 +191,15 @@
         <button type="button" class="btn btn-sm btn-danger" id="post-rant">Fuck it, I'm done.</button>
     </div>
 </div>
-<div id="rants">
+<div class="view" id="rants">
 </div>
-<div id="loading">
+<div class="view center" id="loading">
     <i class="spinner fa fa-spinner fa-spin fa-3x"></i>
 </div>
-<div id="placeholder">
+<div class="view center" id="placeholder">
     Of course you had to pick a tag that no one's used before. Fuck'in hipster.
 </div>
-<div id="templates">
+<div class="view" id="templates">
     <div class="rant panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title"></h3>

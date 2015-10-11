@@ -31,10 +31,6 @@
     border-top-right-radius: 0px !important;
 }
 
-#rants {
-    margin-top: 10px;
-}
-
 h3 {
     display: inline;
     margin-right: 5px;
@@ -44,18 +40,11 @@ h3 {
     margin: 0px 5px;
 }
 
-#loading {
-    margin: 25px 0px;
-    text-align: center;
+.view {
+    margin: 20px 0px;
     display: none;
 }
 
-#placeholder {
-    margin: 25px 0px;
+.center {
     text-align: center;
-    display: none;
-}
-
-#templates {
-    display: none;
 }
