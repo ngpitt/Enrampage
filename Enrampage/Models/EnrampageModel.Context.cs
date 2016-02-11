@@ -27,5 +27,8 @@ namespace Enrampage.Models
     
         public virtual DbSet<Rant> Rants { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
+        public virtual DbSet<Report> Reports { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Log> Logs { get; set; }
     }
 }

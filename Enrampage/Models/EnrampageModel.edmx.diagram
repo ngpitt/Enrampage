@@ -5,9 +5,16 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="27969a6938ad413d962f5677ddd7e768" Name="Diagram1">
-        <EntityTypeShape EntityType="EnrampageModel.Rant" Width="1.5" PointX="0.75" PointY="0.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="EnrampageModel.Tag" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="EnrampageModel.Rant" Width="1.5" PointX="2.75" PointY="3.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="EnrampageModel.Tag" Width="1.5" PointX="4.875" PointY="2.125" IsExpanded="true" />
         <AssociationConnector Association="EnrampageModel.RantTag" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="EnrampageModel.Report" Width="1.5" PointX="0.625" PointY="2" />
+        <AssociationConnector Association="EnrampageModel.ReportRant" />
+        <EntityTypeShape EntityType="EnrampageModel.User" Width="1.5" PointX="2.75" PointY="0.5" />
+        <AssociationConnector Association="EnrampageModel.UserRant" />
+        <AssociationConnector Association="EnrampageModel.UserReport" />
+        <AssociationConnector Association="EnrampageModel.UserTag" />
+        <EntityTypeShape EntityType="EnrampageModel.Log" Width="1.5" PointX="0.625" PointY="4.875" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

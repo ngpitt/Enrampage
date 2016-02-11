@@ -5,6 +5,7 @@
 @section scripts {
     <script>
         var Page = 0;
+        var GettingRants = false;
         var AllRantsShown = false;
         var Tags = [];
 
@@ -12,174 +13,248 @@
             tagClass: 'tag label label-danger',
             trimValue: true,
             typeahead: {
-                afterSelect: function (Value)
-                {
+                afterSelect: function (Value) {
                     this.$element.val(null);
                 },
-                source: function (Query)
-                {
+                source: function (Query) {
                     return Tags;
                 }
             }
         });
 
-        $(function ()
-        {
-            LoadTags();
-            LoadRants();
+        $(function () {
+            GetTags();
+            GetRants();
         });
 
-        $(window).scroll(function ()
-        {
-            if ($(window).scrollTop() + $(window).height() > $(document).height() - 100 && !AllRantsShown)
-            {
+        var OnScroll = function () {
+            if ($(window).scrollTop() + $(window).height() > $(document).height() - 100 && !AllRantsShown) {
                 Page++;
-                LoadRants();
+                GetRants();
             }
-        });
+        };
 
         $('#tags').on('itemAdded', TagsChanged).on('itemRemoved', TagsChanged)
 
-        $('#post-rant').click(function ()
-        {
-            if ($('#tags').tagsinput('items').length === 0 || $('#rant-area').val() === '')
-            {
-                ShowError('Both tags and text are required.');
+        function PostRant() {
+            if ($('#tags').tagsinput('items').length === 0) {
+                ShowError('Just add a tag and be done with it.');
                 return;
             }
 
-            SetControlsDisabled(true);
-            PostJson('@Url.HttpRouteUrl("DefaultApi", new { action = "PostRant" })',
-                { Text: $('#rant-area').val(), Tags: $('#tags').tagsinput('items') },
-                function (Payload)
-                {
-                    var rant = RantFromJson(Payload);
+            if ($('#rant-text').val() === '') {
+                ShowError('Really? You\'ve got nothing to rant about?');
+                return;
+            }
 
-                    $('#rant-area').val(null);
-                    SetControlsDisabled(false);
+            SetControlsDisabled($('#new-rant'), true);
+            PostJson('@Url.Action("PostRant", "Rant")',
+                { Text: $('#rant-text').val(), Tags: $('#tags').tagsinput('items') },
+                function (Response) {
+                    ShowSuccess(Response.Message);
+                    var rant = RantFromJson(Response.Payload);
+                    $('#rant-text').val(null);
 
-                    if ($('#rants .rant').length === 0)
-                    {
+                    if ($('#rants .rant').length === 0) {
                         $('#placeholder').hide();
-                        $('#rants').prepend(rant).slideDown('slow');
+                        $('#rants').prepend(rant).show();
                     }
-                    else
-                    {
-                        rant.hide();
+                    else {
                         $('#rants').prepend(rant)
-                        rant.slideDown('slow');
+                        rant.show();
                     }
-                });
-        });
-
-        function LoadTags()
-        {
-            PostJson('@Url.HttpRouteUrl("DefaultApi", new { action = "GetTags" })',
-                null,
-                function (Payload)
-                {
-                    Tags = Payload;
+                },
+                function (Response) {
+                    ShowError(Response.Message);
+                },
+                function () {
+                    SetControlsDisabled($('#new-rant'), false);
                 });
         }
 
-        function LoadRants()
-        {
-            $('#placeholder').hide();
-            $('#loading').show();
-            PostJson('@Url.HttpRouteUrl("DefaultApi", new { action = "GetRants" })',
-                { Number: Page, Tags: $('#tags').tagsinput('items') },
-                function (Payload)
-                {
-                    $('#loading').hide();
-                    AllRantsShown = Payload.length != 10;
+        function RemoveRant(Rant) {
+            var link = Rant.find('.report-link');
+            var clone = link.clone();
+            link.addClass('disabled').attr('onclick', null).text('Removing');
+            PostJson('@Url.Action("RemoveRant", "Rant")',
+                { Id: Rant.data('id') },
+                function (Response) {
+                    ShowSuccess(Response.Message);
+                    Rant.remove();
 
-                    if (Payload.length === 0 && $('#rants .rant').length === 0)
-                    {
+                    if ($('#rants .rant').length === 0) {
                         $('#placeholder').show();
                     }
-                    else
-                    {
-                        $.each(Payload, function ()
-                        {
-                            $('#rants').append(RantFromJson(this));
-                        });
-                        $('#rants').slideDown('slow');
-                    }
+                },
+                function (Response) {
+                    ShowError(Response.Message);
+                    link.replaceWith(clone);
                 });
         }
 
-        function TagsChanged()
-        {
-            $('#rants').slideUp('slow', function ()
-            {
-                $('#rants .rant').remove();
-                Page = 0;
-                LoadRants();
-            });
+        function ReportRant(Rant) {
+            var report = Rant.find('.submit-report');
+            SetControlsDisabled(report, true);
+            PostJson('@Url.Action("ReportRant", "Rant")',
+                { Id: Rant.data('id'), Text: Rant.find('.report-text').val() },
+                function (Response) {
+                    ShowSuccess(Response.Message);
+                    report.hide();
+                    Rant.find('.report-link').addClass('disabled').attr('onclick', null).text('Already Reported');
+                },
+                function (Response) {
+                    ShowError(Response.Message)
+                    SetControlsDisabled(report, false);
+                });
         }
 
-        function PostJson(Url, Data, Success)
-        {
+        function GetTags() {
+            PostJson('@Url.Action("GetTags", "Rant")',
+                null,
+                function (Response) {
+                    Tags = Response.Payload;
+                },
+                function (Response) {
+                    ShowError(Response.Message);
+                });
+        }
+
+        function GetRants() {
+            $(window).off("scroll", OnScroll);
+            $('#placeholder').hide();
+            $('#loading').show();
+
+            if (Page === 0) {
+                $('#rants').hide()
+                $('#rants .rant').remove();
+            }
+
+            PostJson('@Url.Action("GetRants", "Rant")',
+                { Number: Page, Tags: $('#tags').tagsinput('items') },
+                function (Response) {
+                    if (Page === 0) {
+                        $('#rants').hide()
+                        $('#rants .rant').remove();
+                    }
+
+                    $('#loading').hide();
+                    AllRantsShown = Response.Payload.length != 10;
+
+                    if (Response.Payload.length === 0 && $('#rants .rant').length === 0) {
+                        $('#placeholder').show();
+                    }
+                    else {
+                        $.each(Response.Payload, function () {
+                            $('#rants').append(RantFromJson(this));
+                        });
+                        $('#rants').show();
+                    }
+
+                    TagsChanged = false;
+                },
+                function (Response)
+                {
+                    ShowError(Response.Message);
+                },
+                function () {
+                    $('#loading').hide();
+                    $(window).scroll(OnScroll);
+                });
+        }
+
+        function TagsChanged() {
+            Page = 0;
+            GetRants();
+        }
+
+        function PostJson(Url, Data, OnSuccess, OnError, OnComplete) {
             $.ajax(Url, {
                 type: 'POST',
                 data: JSON.stringify(Data),
                 contentType: 'application/json',
                 dataType: 'json',
-                success: function (Response)
-                {
-                    if (Response.Success)
-                    {
-                        Success(Response.Payload);
+                success: function (Response) {
+                    if (Response.Success && OnSuccess !== undefined) {
+                        OnSuccess(Response);
                     }
-                    else
-                    {
-                        ShowError(Response.Message)
+                    else if (OnError !== undefined) {
+                        OnError(Response);
                     }
                 },
-                error: function ()
-                {
+                error: function () {
                     ShowError('Check your network connection.');
+                },
+                complete: function () {
+                    if (OnComplete !== undefined) {
+                        OnComplete();
+                    }
                 }
             });
         }
 
-        function RantFromJson(Rant)
-        {
+        function RantFromJson(Rant) {
             var rant = $('#templates .rant').clone();
 
-            rant.find('.panel-title').text(Rant.Created);
-            $.each(Rant.Tags, function ()
-            {
-                var tag = rant.find('.tag').first().clone();
+            if (Rant.ReportState != 0) {
+                var reportLink = rant.find('.report-link');
 
+                switch (Rant.ReportState) {
+                    case 1:
+                        reportLink.attr('onclick', 'RemoveRant($(this).parent().parent());').text('Remove');
+                        break;
+                    case 2:
+                        reportLink.addClass('disabled').attr('onclick', null).text('Already Reported');
+                        break;
+                    case 3:
+                        reportLink.addClass('disabled').attr('onclick', null).text('Not Logged In');
+                        break;
+                }
+            }
+
+            rant.find('.panel-footer').hide();
+            rant.find('.panel-title').text(Rant.Timestamp);
+            $.each(Rant.Tags, function () {
+                var tag = rant.find('.tag').first().clone();
                 tag.text(this);
                 rant.find('.panel-heading').append(tag);
             });
             rant.find('.tag').first().remove();
             rant.find('.panel-body').text(Rant.Text);
-
+            rant.data('id', Rant.Id);
             return rant;
         }
 
-        function SetControlsDisabled(Value)
-        {
-            $('#post-rant').prop('disabled', Value);
-            $('#rant-area').prop('disabled', Value);
-            $('#tags').prop('diabled', Value);
+        function SetControlsDisabled(Parent, Value) {
+            Parent.find('input').prop('disabled', Value);
+            Parent.find('textarea').prop('disabled', Value);
+            Parent.find('button').prop('disabled', Value);
         }
 
-        function ShowError(Message)
-        {
-            $('#error').slideUp('slow');
-            $('#error .message').text(Message + ' Guess this isn\'t your day :\'-(');
-            $('#error').slideDown('slow').delay(5000).slideUp('slow');
+        function ShowSuccess(Message) {
+            $('#error').hide();
+            $('#success').hide();
+            $('#success .message').text(Message);
+            $('#success').show();
+            window.scrollTo(0, 0);
+        }
+
+        function ShowError(Message) {
+            $('#success').hide();
+            $('#error').hide();
+            $('#error .message').text(Message);
+            $('#error').show();
             window.scrollTo(0, 0);
         }
     </script>
 }
 
-<div class="alert alert-danger" id="error" role="alert">
-    <strong>Error!</strong> <span class="message"></span>
+<div class="alert alert-success" id="success" role="alert" @Html.Raw(!string.IsNullOrWhiteSpace(ViewBag.Success) ? "style=\"display: inherit;\"" : string.Empty)>
+    <button type="button" class="close" aria-label="Close" onclick="$('#success').hide();"><span aria-hidden="true">&times;</span></button>
+    <strong>Success!</strong> <span class="message">@Html.Raw(!string.IsNullOrWhiteSpace(ViewBag.Success) ? ViewBag.Success : string.Empty)</span>
+</div>
+<div class="alert alert-danger" id="error" role="alert" @Html.Raw(!string.IsNullOrWhiteSpace(ViewBag.Error) ? "style=\"display: inherit;\"" : string.Empty)>
+    <button type="button" class="close" aria-label="Close" onclick="$('#error').hide();"><span aria-hidden="true">&times;</span></button>
+    <strong>Error!</strong> <span class="message">@Html.Raw(!string.IsNullOrWhiteSpace(ViewBag.Error) ? ViewBag.Error : string.Empty)</span>
 </div>
 <div id="new-rant">
     <div class="form-group input-group">
@@ -187,8 +262,8 @@
         <input type="text" class="form-control" id="tags" />
     </div>
     <div class="form-group">
-        <textarea class="form-control" id="rant-area" rows="5"></textarea>
-        <button type="button" class="btn btn-sm btn-danger" id="post-rant">Fuck it, I'm done.</button>
+        <textarea class="form-control textarea-flat-bottom" id="rant-text" rows="5" @(!Request.IsAuthenticated ? "disabled" : "")></textarea>
+        <button type="button" class="btn btn-sm btn-danger button-flat-top" onclick="PostRant();" @(!Request.IsAuthenticated ? "disabled" : "")>Submit Rant</button>
     </div>
 </div>
 <div class="view" id="rants">
@@ -197,15 +272,20 @@
     <i class="spinner fa fa-spinner fa-spin fa-3x"></i>
 </div>
 <div class="view center" id="placeholder">
-    Of course you had to pick a tag that no one's used before. Fuck'in hipster.
+    No rants to show.
 </div>
 <div class="view" id="templates">
     <div class="rant panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title"></h3>
             <button type="button" class="tag btn btn-xs btn-danger" onclick="$('#tags').tagsinput('add', $(this).text());"></button>
+            <a class="pull-right report-link" href="#" onclick="$(this).parent().parent().find('.submit-report').toggle();">Report</a>
         </div>
         <div class="panel-body">
+        </div>
+        <div class="panel-footer submit-report">
+            <textarea class="form-control textarea-flat-bottom report-text" rows="5"></textarea>
+            <button type="button" class="btn btn-sm btn-danger button-flat-top" onclick="ReportRant($(this).parent().parent());">Submit Report</button>
         </div>
     </div>
 </div>

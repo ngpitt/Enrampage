@@ -195,5 +195,7 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 
-# Connection string configs
+# Private configs
 ConnectionStrings.*.config
+AppSettings.*.config
+MailSettings.*.config

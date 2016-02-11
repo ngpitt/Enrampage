@@ -8,6 +8,9 @@
   <EntityContainer Name="EnrampageModelStoreContainer">
     <EntitySet Name="Rants" EntityType="EnrampageModel.Store.Rants" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Tags" EntityType="EnrampageModel.Store.Tags" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Reports" EntityType="EnrampageModel.Store.Reports" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Users" EntityType="EnrampageModel.Store.Users" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Logs" EntityType="EnrampageModel.Store.Logs" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="RantTag" EntityType="EnrampageModel.Store.RantTag" store:Type="Tables" Schema="dbo" />
     <AssociationSet Name="FK_RantTag_Rants" Association="EnrampageModel.Store.FK_RantTag_Rants">
       <End Role="Rants" EntitySet="Rants" />
@@ -17,13 +20,30 @@
       <End Role="Tags" EntitySet="Tags" />
       <End Role="RantTag" EntitySet="RantTag" />
     </AssociationSet>
+    <AssociationSet Name="ReportRant" Association="EnrampageModel.Store.ReportRant">
+      <End Role="Report" EntitySet="Reports" />
+      <End Role="Rant" EntitySet="Rants" />
+    </AssociationSet>
+    <AssociationSet Name="UserRant" Association="EnrampageModel.Store.UserRant">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Rant" EntitySet="Rants" />
+    </AssociationSet>
+    <AssociationSet Name="UserReport" Association="EnrampageModel.Store.UserReport">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Report" EntitySet="Reports" />
+    </AssociationSet>
+    <AssociationSet Name="UserTag" Association="EnrampageModel.Store.UserTag">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Tag" EntitySet="Tags" />
+    </AssociationSet>
   </EntityContainer>
   <EntityType Name="Rants">
     <Key>
       <PropertyRef Name="Id" />
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="Created" Type="datetime" Nullable="false" />
+    <Property Name="UserId" Type="int" Nullable="false" />
+    <Property Name="Timestamp" Type="datetime" Nullable="false" />
     <Property Name="Text" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
   <EntityType Name="Tags">
@@ -31,7 +51,34 @@
       <PropertyRef Name="Id" />
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserId" Type="int" Nullable="false" />
     <Property Name="Text" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Reports">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserId" Type="int" Nullable="false" />
+    <Property Name="RantId" Type="int" Nullable="false" />
+    <Property Name="Timestamp" Type="datetime" Nullable="false" />
+    <Property Name="Text" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Users">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Email" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Admin" Type="bit" Nullable="false" />
+    <Property Name="Banned" Type="bit" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Logs">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Exception" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
   <EntityType Name="RantTag">
     <Key>
@@ -41,6 +88,54 @@
     <Property Name="Rants_Id" Type="int" Nullable="false" />
     <Property Name="Tags_Id" Type="int" Nullable="false" />
   </EntityType>
+  <Association Name="ReportRant">
+    <End Role="Report" Type="EnrampageModel.Store.Reports" Multiplicity="*" />
+    <End Role="Rant" Type="EnrampageModel.Store.Rants" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Rant">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Report">
+        <PropertyRef Name="RantId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="UserRant">
+    <End Role="User" Type="EnrampageModel.Store.Users" Multiplicity="1" />
+    <End Role="Rant" Type="EnrampageModel.Store.Rants" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Rant">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="UserReport">
+    <End Role="User" Type="EnrampageModel.Store.Users" Multiplicity="1" />
+    <End Role="Report" Type="EnrampageModel.Store.Reports" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Report">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="UserTag">
+    <End Role="User" Type="EnrampageModel.Store.Users" Multiplicity="1" />
+    <End Role="Tag" Type="EnrampageModel.Store.Tags" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Tag">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <Association Name="FK_RantTag_Rants">
     <End Role="Rants" Type="EnrampageModel.Store.Rants" Multiplicity="1" />
     <End Role="RantTag" Type="EnrampageModel.Store.RantTag" Multiplicity="*" />
@@ -74,21 +169,28 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Created" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Text" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="EnrampageModel.UserRant" FromRole="Rant" ToRole="User" />
           <NavigationProperty Name="Tags" Relationship="Self.RantTag" FromRole="Rants" ToRole="Tags" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="Timestamp" Type="DateTime" Nullable="false" />
+          <Property Name="Text" Type="String" Nullable="false" />
+          <NavigationProperty Name="Reports" Relationship="EnrampageModel.ReportRant" FromRole="Rant" ToRole="Report" />
         </EntityType>
         <EntityType Name="Tag">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Text" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="Text" Type="String" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="EnrampageModel.UserTag" FromRole="Tag" ToRole="User" />
           <NavigationProperty Name="Rants" Relationship="Self.RantTag" FromRole="Tags" ToRole="Rants" />
         </EntityType>
         <Association Name="RantTag">
-          <End Role="Rants" Type="Self.Rant" Multiplicity="*" />
-          <End Role="Tags" Type="Self.Tag" Multiplicity="*" />
+          <End Role="Rants" Type="Self.Rant" Multiplicity="*" >
+          </End>
+          <End Role="Tags" Type="Self.Tag" Multiplicity="*" >
+          </End>
         </Association>
         <EntityContainer Name="EnrampageEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Rants" EntityType="Self.Rant" />
@@ -97,7 +199,105 @@
             <End Role="Rants" EntitySet="Rants" />
             <End Role="Tags" EntitySet="Tags" />
           </AssociationSet>
+          <EntitySet Name="Reports" EntityType="EnrampageModel.Report" />
+          <AssociationSet Name="ReportRant" Association="EnrampageModel.ReportRant">
+            <End Role="Report" EntitySet="Reports" />
+            <End Role="Rant" EntitySet="Rants" />
+          </AssociationSet>
+          <EntitySet Name="Users" EntityType="EnrampageModel.User" />
+          <AssociationSet Name="UserRant" Association="EnrampageModel.UserRant">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Rant" EntitySet="Rants" />
+          </AssociationSet>
+          <AssociationSet Name="UserReport" Association="EnrampageModel.UserReport">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Report" EntitySet="Reports" />
+          </AssociationSet>
+          <AssociationSet Name="UserTag" Association="EnrampageModel.UserTag">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Tag" EntitySet="Tags" />
+          </AssociationSet>
+          <EntitySet Name="Logs" EntityType="EnrampageModel.Log" />
         </EntityContainer>
+        <EntityType Name="Report">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <NavigationProperty Name="User" Relationship="EnrampageModel.UserReport" FromRole="Report" ToRole="User" />
+          <NavigationProperty Name="Rant" Relationship="EnrampageModel.ReportRant" FromRole="Report" ToRole="Rant" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="RantId" Type="Int32" Nullable="false" />
+          <Property Name="Timestamp" Type="DateTime" Nullable="false" />
+          <Property Name="Text" Type="String" Nullable="false" />
+        </EntityType>
+        <Association Name="ReportRant">
+          <End Type="EnrampageModel.Report" Role="Report" Multiplicity="*" />
+          <End Type="EnrampageModel.Rant" Role="Rant" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="Rant">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Report">
+              <PropertyRef Name="RantId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Email" Type="String" Nullable="false" />
+          <Property Name="Admin" Type="Boolean" Nullable="false" />
+          <Property Name="Banned" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Rants" Relationship="EnrampageModel.UserRant" FromRole="User" ToRole="Rant" />
+          <NavigationProperty Name="Reports" Relationship="EnrampageModel.UserReport" FromRole="User" ToRole="Report" />
+          <NavigationProperty Name="Tags" Relationship="EnrampageModel.UserTag" FromRole="User" ToRole="Tag" />
+        </EntityType>
+        <Association Name="UserRant">
+          <End Type="EnrampageModel.User" Role="User" Multiplicity="1" />
+          <End Type="EnrampageModel.Rant" Role="Rant" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Rant">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="UserReport">
+          <End Type="EnrampageModel.User" Role="User" Multiplicity="1" />
+          <End Type="EnrampageModel.Report" Role="Report" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Report">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="UserTag">
+          <End Type="EnrampageModel.User" Role="User" Multiplicity="1" />
+          <End Type="EnrampageModel.Tag" Role="Tag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Tag">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Log">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Exception" Type="String" Nullable="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -108,7 +308,8 @@
       <EntityTypeMapping TypeName="IsTypeOf(EnrampageModel.Rant)">
         <MappingFragment StoreEntitySet="Rants">
           <ScalarProperty Name="Id" ColumnName="Id" />
-          <ScalarProperty Name="Created" ColumnName="Created" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="Timestamp" ColumnName="Timestamp" />
           <ScalarProperty Name="Text" ColumnName="Text" />
         </MappingFragment>
       </EntityTypeMapping>
@@ -117,7 +318,37 @@
       <EntityTypeMapping TypeName="IsTypeOf(EnrampageModel.Tag)">
         <MappingFragment StoreEntitySet="Tags">
           <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
           <ScalarProperty Name="Text" ColumnName="Text" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Reports">
+      <EntityTypeMapping TypeName="IsTypeOf(EnrampageModel.Report)">
+        <MappingFragment StoreEntitySet="Reports">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="RantId" ColumnName="RantId" />
+          <ScalarProperty Name="Timestamp" ColumnName="Timestamp" />
+          <ScalarProperty Name="Text" ColumnName="Text" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Users">
+      <EntityTypeMapping TypeName="IsTypeOf(EnrampageModel.User)">
+        <MappingFragment StoreEntitySet="Users">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Email" ColumnName="Email" />
+          <ScalarProperty Name="Admin" ColumnName="Admin" />
+          <ScalarProperty Name="Banned" ColumnName="Banned" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Logs">
+      <EntityTypeMapping TypeName="IsTypeOf(EnrampageModel.Log)">
+        <MappingFragment StoreEntitySet="Logs">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Exception" ColumnName="Exception" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

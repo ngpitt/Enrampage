@@ -12,24 +12,15 @@ namespace Enrampage.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Rant
+    public partial class Report
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Rant()
-        {
-            this.Tags = new HashSet<Tag>();
-            this.Reports = new HashSet<Report>();
-        }
-    
         public int Id { get; set; }
         public int UserId { get; set; }
+        public int RantId { get; set; }
         public System.DateTime Timestamp { get; set; }
         public string Text { get; set; }
     
         public virtual User User { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Tag> Tags { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Report> Reports { get; set; }
+        public virtual Rant Rant { get; set; }
     }
 }

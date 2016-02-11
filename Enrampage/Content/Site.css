@@ -12,20 +12,23 @@
     margin-top: 20px;
 }
 
+#rant-text {
+    text-transform: uppercase;
+}
+
 .bootstrap-tagsinput {
     min-width: 100%;
     border-top-left-radius: 0px !important;
     border-bottom-left-radius: 0px !important;
 }
 
-#rant-area {
+.textarea-flat-bottom {
     resize: none;
-    text-transform: uppercase;
     border-bottom-left-radius: 0px !important;
     border-bottom-right-radius: 0px !important;
 }
 
-#post-rant {
+.button-flat-top {
     min-width: 100%;
     border-top-left-radius: 0px !important;
     border-top-right-radius: 0px !important;
@@ -47,4 +50,9 @@ h3 {
 
 .center {
     text-align: center;
+}
+
+.disabled {
+    pointer-events: none;
+    color: gray;
 }
